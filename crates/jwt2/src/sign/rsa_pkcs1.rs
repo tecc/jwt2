@@ -2,7 +2,9 @@
 
 use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
 use rsa::pkcs1v15::{Signature, SigningKey, VerifyingKey};
-use rsa::signature::{Keypair, SignatureEncoding};
+use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
+use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
+use signature::{Keypair, SignatureEncoding};
 use sha2::{Sha256, Sha384, Sha512};
 
 pub struct RSAVerifierConfig {}
@@ -39,17 +41,17 @@ macro_rules! impl_rs {
 
             #[cfg(feature = "rand")]
             #[cfg_attr(docsrs, doc(cfg(feature = "rand")))]
-            pub fn new_rand<R>(rng: &R, bits: usize) -> Self where R: rand_core::CryptoRngCore {
-                Self {
-                    key: SigningKey::random(rng, bits)
-                }
+            pub fn new_rand<R>(rng: &mut R, bits: usize) -> rsa::Result<Self> where R: rand_core::CryptoRngCore {
+                Ok(Self {
+                    key: SigningKey::random(rng, bits)?
+                })
             }
 
             /// Creates a corresponding verifying-only instance from `self`.
             pub fn public(&self) -> $public_ident {
                 // This function is only duplicated for the convenience of the consumer.
                 // In reality they have no implementation differences.
-                self.verifying_key()
+                $public_ident::from(self.key.verifying_key())
             }
         }
         impl $public_ident {
@@ -62,9 +64,16 @@ macro_rules! impl_rs {
             pub fn parse_pkcs1_pem(key: &str) -> rsa::pkcs1::Result<Self> {
                 VerifyingKey::from_pkcs1_pem(key).map(Self::from)
             }
-            pub fn parse_pkcs8_pem(key: &str) -> rsa::pkcs8::Result<Self> {
-                VerifyingKey::from_pkcs8_pem(key).map(Self::from)
+            pub fn parse_pkcs8_pem(key: &str) -> rsa::pkcs8::spki::Result<Self> {
+                VerifyingKey::from_public_key_pem(key).map(Self::from)
             }
+        }
+        impl Algo for $main_ident {
+            // Whilst this maybe *shouldn't* be done, it's the shortest solution.
+            const ALGORITHM: SigningAlgorithm = SigningAlgorithm::$main_ident;
+        }
+        impl Algo for $public_ident {
+            const ALGORITHM: SigningAlgorithm = SigningAlgorithm::$main_ident;
         }
     };
 }
@@ -102,12 +111,17 @@ pub struct GenericRsaImpl<Key> {
     key: Key,
 }
 
+trait Algo {
+    const ALGORITHM: SigningAlgorithm;
+}
+
 impl<Key> JwsVerifier for GenericRsaImpl<Key>
 where
-    Key: rsa::signature::Verifier<Signature>,
+    Key: signature::Verifier<Signature>,
+    Self: Algo,
 {
     fn check_header(&self, header: &Header) -> bool {
-        header.algorithm == SigningAlgorithm::RS256
+        header.algorithm == Self::ALGORITHM
     }
 
     fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
@@ -119,7 +133,7 @@ where
 }
 impl<Key> JwsSigner for GenericRsaImpl<Key>
 where
-    Key: rsa::signature::Signer<Signature>,
+    Key: signature::Signer<Signature>,
 {
     fn sign(&self, data: &[u8]) -> Vec<u8> {
         self.key.sign(data).to_bytes().into_vec()
@@ -132,7 +146,7 @@ mod tests {
     use crate::repr::decode_bytes_from_base64url;
     use rsa::pkcs1v15::{Signature, SigningKey};
     use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
-    use rsa::signature::{Keypair, Signer, Verifier};
+    use signature::{Keypair, Signer, Verifier};
     use rsa::{RsaPrivateKey, RsaPublicKey};
     use sha2::Sha256;
 

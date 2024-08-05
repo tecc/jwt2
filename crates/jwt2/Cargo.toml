@@ -16,9 +16,13 @@ default = ["recommended"]
 # contain those specified as `required`.
 recommended = ["hmac-sha2"]
 
+# NOTE: Maybe create features for each algorithm and group them with more features?
+#       It might be excessive.
+
 hmac-sha2 = ["dep:hmac", "dep:sha2"]
 # This name might be changed sometime since it may not be a good name.
-rsa-pkcs1 = ["dep:rsa", "dep:sha2"]
+rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
+ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384", "dep:p521"]
 
 # Will allow for generation of keys.
 # This is mostly a utility.
@@ -29,16 +33,35 @@ rand = ["dep:rand_core"]
 version = "1.6"
 features = ["alloc"]
 
+[dependencies.ecdsa]
+version = "0.17.0-pre"
+optional = true
+
 [dependencies.hmac]
-version = "0.13.0-pre"
+version = "^0.13.0-pre"
+optional = true
+
+[dependencies.p256]
+version = "^0.14.0-pre"
+optional = true
+
+[dependencies.p384]
+version = "^0.14.0-pre"
+optional = true
+
+# Personal note:
+# It really bothers me that all of the crates and numbers are consistent until
+# this one. It's also just the 2 and 1 swapped!! Why?!
+[dependencies.p521]
+version = "0.14.0-pre"
 optional = true
 
 [dependencies.rand_core]
-version = "0.6"
+version = "^0.6"
 optional = true
 
 [dependencies.rsa]
-version = "0.10.0-pre"
+version = "^0.10.0-pre"
 optional = true
 
 [dependencies.serde]
@@ -47,6 +70,10 @@ features = ["derive"]
 
 [dependencies.serde_json]
 version = "1"
+
+[dependencies.signature]
+version = "^2.3.0-pre"
+optional = true
 
 [dependencies.sha2]
 # We use the 0.11-pre versions for now because
