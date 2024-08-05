@@ -32,11 +32,11 @@ pub fn decode_bytes_from_base64url(s: &str) -> Result<Vec<u8>, base64ct::Error> 
 
 /// Encodes a value as a base64-encoded JSON string.
 ///
-/// Effectively equivalent to the following.
-/// ```no_run
-/// /* let value = something; */
-/// let json = serde_json::to_vec(&value)?;
-/// let encoded = jwt2::repr::encode_bytes_as_base64url(&json);
+/// Effectively equivalent to the following:
+/// ```
+/// let value = serde_json::json!({ "hello": "world!" });
+/// let json = serde_json::to_vec(&value).expect("Could not serialise JSON");
+/// let base64 = jwt2::repr::encode_bytes_as_base64url(&json);
 /// ```
 pub fn encode_value_as_base64url<T>(value: &T) -> Result<String, serde_json::Error>
 where
@@ -46,6 +46,14 @@ where
     Ok(encode_bytes_as_base64url(&bytes))
 }
 
+/// Decodes a value from a base64-encoded JSON string.
+///
+/// Effectively equivalent to the following:
+/// ```
+/// let base64 = "WzMyLDY0XQ"; // This can technically have padding
+/// let json = jwt2::repr::decode_bytes_from_base64url(&base64).expect("Could not decode base64");
+/// let value: (u64, u64) = serde_json::from_slice(&json).expect("Could not deserialize JSON");
+/// ```
 pub fn decode_value_from_base64url<T>(s: &str) -> Result<T, DecodeError>
 where
     T: serde::de::DeserializeOwned,
