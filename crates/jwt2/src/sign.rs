@@ -96,6 +96,14 @@ macro_rules! algorithms {
 
 algorithms!(
     /// Signing algorithms supported by `jwt2`.
+    ///
+    /// The list of algorithms supported is non-exhaustive, but should endeavour to be
+    /// all defined `alg` header parameter values intended for JWS.
+    /// Most of these algorithms are also feature-gated; see the individual variants for
+    /// more documentation.
+    ///
+    /// See [section 3 of RFC 7518](https://www.rfc-editor.org/rfc/rfc7518.html#section-3)
+    /// for a reference regarding the algorithms that `jwt2` should support.
     #[derive(Copy, Clone, Eq, PartialEq, Hash)]
     #[non_exhaustive]
     SigningAlgorithm;

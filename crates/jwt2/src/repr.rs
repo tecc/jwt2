@@ -3,7 +3,7 @@ use base64ct::Encoding;
 /// Encodes to the preferred base64 format specified by RFC 7515:
 ///
 /// > Base64 encoding using the URL- and filename-safe character set
-/// > defined in [Section 5 of RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-5),
+/// > defined in [Section 5 of RFC 4648](https://www.rfc-editor.org/rfc/rfc4648.html#section-5),
 /// > with all trailing '=' characters omitted (as permitted by Section 3.2) and without the
 /// > inclusion of any line breaks, whitespace, or other additional
 /// > characters.
@@ -17,7 +17,7 @@ pub fn encode_bytes_as_base64url(s: &[u8]) -> String {
 /// Decodes bytes from the preferred base64 format specified by RFC 7515:
 ///
 /// > Base64 encoding using the URL- and filename-safe character set
-/// > defined in [Section 5 of RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-5),
+/// > defined in [Section 5 of RFC 4648](https://www.rfc-editor.org/rfc/rfc4648.html#section-5),
 /// > with all trailing '=' characters omitted (as permitted by Section 3.2) and without the
 /// > inclusion of any line breaks, whitespace, or other additional
 /// > characters.
@@ -75,7 +75,7 @@ mod tests {
     use super::*;
 
     /// A test of encoding the example JWS Protected Header in
-    /// [RFC 7515's Appendix A.1](https://datatracker.ietf.org/doc/html/rfc7515#appendix-A.1).
+    /// [RFC 7515's Appendix A.1](https://www.rfc-editor.org/rfc/rfc7515.html#appendix-A.1).
     #[test]
     fn rfc7515_a1_encoding_header() {
         let arr = [
@@ -90,7 +90,7 @@ mod tests {
         assert_eq!(arr, decoded.as_slice())
     }
     /// A test of encoding the example JWS Protected Header in
-    /// [RFC 7515's Appendix A.1](https://datatracker.ietf.org/doc/html/rfc7515#appendix-A.1).
+    /// [RFC 7515's Appendix A.1](https://www.rfc-editor.org/rfc/rfc7515.html#appendix-A.1).
     #[test]
     fn rfc7515_a1_encoding_payload() {
         let arr = [

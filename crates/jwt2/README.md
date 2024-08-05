@@ -39,8 +39,8 @@ and [Serde JSON](https://github.com/serde-rs/json).
 incorporates documentation from the standards in question.
 
 The standards in question are the following RFCs:
-- [RFC 7515: JSON Web Signature (JWS)](https://www.rfc-editor.org/info/rfc7515)
-- [RFC 7518: JSON Web Algorithms (JWA)](https://www.rfc-editor.org/info/rfc7518)
+- [RFC 7515: JSON Web Signature (JWS)](https://www.rfc-editor.org/rfc/rfc7515.html)
+- [RFC 7518: JSON Web Algorithms (JWA)](https://www.rfc-editor.org/rfc/rfc7518.html)
 
 ## Licence
 

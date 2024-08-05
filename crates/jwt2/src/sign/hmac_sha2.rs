@@ -5,7 +5,7 @@
 //! These
 //!
 //! ## Security considerations
-//! Per [section 3.2 of RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.2),
+//! Per [section 3.2 of RFC 7518](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2),
 //! the key length must be greater than the output size of the underlying hash.
 //!
 //! This requirement is not directly enforced by `jwt2`, but may be so in the future.

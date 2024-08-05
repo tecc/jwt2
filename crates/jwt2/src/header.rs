@@ -5,14 +5,14 @@ pub struct SigningHeader {
     /// The algorithm that this object is/will be signed with.
     /// Corresponds to the `alg` header parameter.
     ///
-    /// See [section 4.1.1 of RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.1).
+    /// See [section 4.1.1 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.1).
     #[serde(rename = "alg")]
     pub algorithm: SigningAlgorithm,
 
     /// The type of the object that is encoded with this header.
     /// Corresponds to the `typ` header parameter.
     ///
-    /// See [section 4.1.9 of RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.9)
+    /// See [section 4.1.9 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.9)
     #[serde(rename = "typ")]
     pub obj_type: Option<String>,
 
@@ -25,7 +25,7 @@ pub struct SigningHeader {
     ///
     /// To validate this, use the [`SigningHeader::required_extensions`] function.
     ///
-    /// See [section 4.1.11 of RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.11).
+    /// See [section 4.1.11 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.11).
     #[serde(rename = "crit")]
     pub required_extensions: Option<Vec<String>>,
 }
@@ -48,8 +48,8 @@ impl SigningHeader {
     ///    > Producers MUST NOT use the empty list `[]` as the `crit` value.
     /// 2. the array contains headers which are technically supported by `jwt2`.
     ///    At the moment, `jwt2` only supports header parameters that are specified by
-    ///    [the JWS RFC](https://datatracker.ietf.org/doc/html/rfc7515#section-4.1)
-    ///    or those specified by [the JWA RFC](https://datatracker.ietf.org/doc/html/rfc7518).
+    ///    [the JWS RFC](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1)
+    ///    or those specified by [the JWA RFC](https://www.rfc-editor.org/rfc/rfc7518.html).
     ///    > Recipients MAY consider the JWS to be invalid if the critical list contains
     ///    > any Header Parameter names defined by this specification or JWA for use with JWS
     ///    > or if any other constraints on its use are violated.
