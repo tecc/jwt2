@@ -65,21 +65,51 @@ impl Header {
 }
 
 /// JSON Web Algorithm.
-#[derive(Copy, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Algorithm {
-    /// An algorithm for use with JSON Web Signatures.
-    Signing(SigningAlgorithm),
     /// The `none` algorithm, indicating that no digital signature
     #[serde(rename = "none")]
-    None
+    None,
+    /// An algorithm for use with JSON Web Signatures.
+    #[serde(untagged)]
+    Signing(SigningAlgorithm),
 }
 
 impl PartialEq<SigningAlgorithm> for Algorithm {
     fn eq(&self, other: &SigningAlgorithm) -> bool {
         match self {
             Self::Signing(me) => me == other,
-            _ => false
+            _ => false,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn alg_value() {
+        macro_rules! test {
+            ($value:expr => $expected:expr) => {
+                let value = $value;
+                let json = serde_json::to_string(&value).expect("Could not serialise");
+                let expected = $expected;
+                assert_eq!(json, expected);
+            };
+        }
+        test!(Algorithm::None => "\"none\"");
+        #[cfg(feature = "hmac-sha2")]
+        {
+            test!(Algorithm::Signing(SigningAlgorithm::HS256) => "\"HS256\"");
+            test!(Algorithm::Signing(SigningAlgorithm::HS384) => "\"HS384\"");
+            test!(Algorithm::Signing(SigningAlgorithm::HS512) => "\"HS512\"");
+        }
+        #[cfg(feature = "rsa-pkcs1")]
+        {
+            test!(Algorithm::Signing(SigningAlgorithm::RS256) => "\"RS256\"");
+            test!(Algorithm::Signing(SigningAlgorithm::RS384) => "\"RS384\"");
+            test!(Algorithm::Signing(SigningAlgorithm::RS512) => "\"RS512\"");
         }
     }
 }

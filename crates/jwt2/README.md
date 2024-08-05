@@ -49,6 +49,7 @@ incorporates documentation from the standards in question.
 
 The standards in question are the following RFCs:
 - [RFC 7515: JSON Web Signature (JWS)](https://www.rfc-editor.org/rfc/rfc7515.html)
+- [RFC 7516: JSON Web Encryption (JWE)](https://www.rfc-editor.org/rfc/rfc7516.html)
 - [RFC 7518: JSON Web Algorithms (JWA)](https://www.rfc-editor.org/rfc/rfc7518.html)
 
 To test the correctness of `jwt2`, beyond the tests included in the code, 
