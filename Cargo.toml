@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "crates/jwt2", "crates/jwt2-macros",
+]
+resolver = "2"
+
+[workspace.package]
+license = "Apache-2.0"
+repository = "https://github.com/tecc/jwt2"
+edition = "2021"

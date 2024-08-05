@@ -1,0 +1,45 @@
+[package]
+name = "jwt2"
+description = """
+JSON Web Tokens done right... hopefully.
+"""
+version = "0.1.0"
+authors = ["tecc <tecc@tecc.me>"]
+license.workspace = true
+repository.workspace = true
+edition.workspace = true
+
+[features]
+default = ["recommended"]
+# The `recommended` feature contains all algorithms that `jwt2`
+# recommends consumers have. This includes those specified by the `JWS` standard as 'required' and 'recommended'.
+recommended = ["hmac-sha2"]
+hmac-sha2 = ["dep:hmac", "dep:sha2"]
+
+[dependencies.base64ct]
+version = "1.6"
+features = ["alloc"]
+
+[dependencies.hmac]
+version = "0.13.0-pre"
+optional = true
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies.serde_json]
+version = "1"
+
+[dependencies.sha2]
+# We use the 0.11-pre versions for now because
+# they're just generally more pleasant to work with.
+version = "0.11.0-pre"
+optional = true
+
+[dependencies.thiserror]
+version = "1"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
