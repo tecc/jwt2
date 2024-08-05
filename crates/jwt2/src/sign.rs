@@ -79,3 +79,20 @@ pub trait JwsVerifier {
     /// Note that this will not tell you if `signature` itself is invalid.
     fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool;
 }
+/// Signifies that something can sign a string (see [`JwsSigner::sign`]).
+///
+/// ```
+/// use jwt2::repr::{decode_bytes_from_base64url, encode_bytes_as_base64url};
+/// use jwt2::sign::hmac_sha2::HS256;
+/// use jwt2::sign::JwsSigner;
+///
+/// let hs256 = HS256::new(b"your-256-bit-secret").expect("Could not construct HS256");
+/// let jwt_header_and_payload = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
+///
+/// let signature = encode_bytes_as_base64url(&hs256.sign(jwt_header_and_payload.as_bytes()));
+/// let expected_signature = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+/// assert_eq!(signature, expected_signature);
+/// ```
+pub trait JwsSigner {
+    // TODO: Maybe a function that modifies a header?
+    //       That might be a bit *eh* since the algorithm could make potentially unwanted changes.

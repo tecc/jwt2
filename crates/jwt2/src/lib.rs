@@ -7,6 +7,6 @@ pub mod sign;
 pub(crate) mod util;
 
 pub use header::Header;
-pub use sign::{SigningAlgorithm, JwsVerifier};
+pub use sign::{SigningAlgorithm, JwsVerifier, JwsSigner};
 
 // TODO: Crate-level documentation.

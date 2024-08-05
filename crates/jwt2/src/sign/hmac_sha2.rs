@@ -13,7 +13,7 @@
 //! It is upon the user to ensure that keys are secure enough.
 
 use crate::header::Header;
-use crate::sign::{SigningAlgorithm, JwsVerifier};
+use crate::sign::{SigningAlgorithm, JwsVerifier, JwsSigner};
 use hmac::{Hmac, KeyInit, Mac};
 use sha2::{Sha256, Sha384, Sha512};
 
@@ -80,6 +80,14 @@ macro_rules! impl_hs {
                 let mut inner = self.inner.clone();
                 inner.update(data);
                 return inner.verify_slice(signature).is_ok();
+            }
+        }
+        impl JwsSigner for $struct_ident {
+            fn sign(&self, data: &[u8]) -> Vec<u8> {
+                let mut inner = self.inner.clone();
+                inner.update(data);
+                let result = inner.finalize();
+                Vec::from(result.into_bytes().0)
             }
         }
     };
