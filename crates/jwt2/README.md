@@ -20,12 +20,21 @@ It is intended as a replacement for the `jsonwebtoken` crate.
 Whilst `jwt2` may not necessarily fulfill all the goals specified above,
 at some point I hope it will.
 
+## Feature gates
+
+- `hmac-sha2` (recommended): Defines the `HS256`, `HS384`, and `HS512` algorithms.
+- `rsa-pkcs1` (recommended): Defines the `RS256`, `RS384`, and `RS512` algorithms.
+- `rand`: Provides utility functions to generate keys.
+
 ## Libraries used
 
 `jwt2` is made using the wonderfully easy-to-use `RustCrypto` family of crates as 
 the backing implementations of all the algorithms thus far.
-- `HS256`, `HS384`, and `HS512` uses the 
+- `HS256`, `HS384`, and `HS512` use the 
   [`hmac`](https://github.com/RustCrypto/MACs/tree/master/hmac) and 
+  [`sha2`](https://github.com/RustCrypto/hashes/tree/master/sha2) crates.
+- `RS256`, `RS384`, and `RS512` use the 
+  [`rsa`](https://github.com/RustCrypto/RSA)
   [`sha2`](https://github.com/RustCrypto/hashes/tree/master/sha2) crates.
 - Base64 encoding and decoding is done using the 
   [`base64ct`](https://github.com/RustCrypto/formats/tree/master/base64ct) crate.
@@ -41,6 +50,9 @@ incorporates documentation from the standards in question.
 The standards in question are the following RFCs:
 - [RFC 7515: JSON Web Signature (JWS)](https://www.rfc-editor.org/rfc/rfc7515.html)
 - [RFC 7518: JSON Web Algorithms (JWA)](https://www.rfc-editor.org/rfc/rfc7518.html)
+
+To test the correctness of `jwt2`, beyond the tests included in the code, 
+I've cross-referenced the example values from [jwt.io](https://jwt.io), presuming their correctness.
 
 ## Licence
 

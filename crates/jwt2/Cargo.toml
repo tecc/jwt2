@@ -11,10 +11,19 @@ edition.workspace = true
 
 [features]
 default = ["recommended"]
-# The `recommended` feature contains all algorithms that `jwt2`
-# recommends consumers have. This includes those specified by the `JWS` standard as 'required' and 'recommended'.
+# The `recommended` feature contains all algorithms that `jwt2` recommends consumers have.
+# This may or may not coincide with those RFC 7518 specified as `recommended`, but *will*
+# contain those specified as `required`.
 recommended = ["hmac-sha2"]
+
 hmac-sha2 = ["dep:hmac", "dep:sha2"]
+# This name might be changed sometime since it may not be a good name.
+rsa-pkcs1 = ["dep:rsa", "dep:sha2"]
+
+# Will allow for generation of keys.
+# This is mostly a utility.
+# Note that in some cases rand_core may be included either way (example: the rsa crate)
+rand = ["dep:rand_core"]
 
 [dependencies.base64ct]
 version = "1.6"
@@ -22,6 +31,14 @@ features = ["alloc"]
 
 [dependencies.hmac]
 version = "0.13.0-pre"
+optional = true
+
+[dependencies.rand_core]
+version = "0.6"
+optional = true
+
+[dependencies.rsa]
+version = "0.10.0-pre"
 optional = true
 
 [dependencies.serde]

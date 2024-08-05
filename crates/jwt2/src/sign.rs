@@ -4,7 +4,14 @@ pub mod hmac_sha2;
 
 #[cfg(feature = "hmac-sha2")]
 #[cfg_attr(docsrs, doc(cfg(feature = "hmac-sha2")))]
-pub use hmac_sha2::*;
+pub use hmac_sha2::{HS256, HS384, HS512};
+
+#[cfg(feature = "rsa-pkcs1")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+pub mod rsa_pkcs1;
+#[cfg(feature = "rsa-pkcs1")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+pub use rsa_pkcs1::{RS256Public, RS384Public, RS512Public, RS256, RS384, RS512};
 
 use crate::header::Header;
 use crate::util::algorithms_decl;
@@ -40,6 +47,22 @@ algorithms_decl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "hmac-sha2")))]
     HS512 {
         cfg: #[cfg(feature = "hmac-sha2")];
+    },
+
+    /// RSASSA-PKCS1-v1_5 using SHA2-256.
+    #[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+    RS256 {
+        cfg: #[cfg(feature = "rsa-pkcs1")];
+    },
+    /// RSASSA-PKCS1-v1_5 using SHA2-384.
+    #[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+    RS384 {
+        cfg: #[cfg(feature = "rsa-pkcs1")];
+    },
+    /// RSASSA-PKCS1-v1_5 using SHA2-512.
+    #[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+    RS512 {
+        cfg: #[cfg(feature = "rsa-pkcs1")];
     }
 );
 
@@ -96,3 +119,7 @@ pub trait JwsVerifier {
 pub trait JwsSigner {
     // TODO: Maybe a function that modifies a header?
     //       That might be a bit *eh* since the algorithm could make potentially unwanted changes.
+
+    /// Creates a signature for data.
+    fn sign(&self, data: &[u8]) -> Vec<u8>;
+}

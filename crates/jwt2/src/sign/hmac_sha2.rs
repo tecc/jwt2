@@ -13,7 +13,7 @@
 //! It is upon the user to ensure that keys are secure enough.
 
 use crate::header::Header;
-use crate::sign::{SigningAlgorithm, JwsVerifier, JwsSigner};
+use crate::sign::{JwsSigner, JwsVerifier, SigningAlgorithm};
 use hmac::{Hmac, KeyInit, Mac};
 use sha2::{Sha256, Sha384, Sha512};
 
@@ -70,7 +70,21 @@ impl HS512 {
 }
 
 macro_rules! impl_hs {
-    ($struct_ident:ty: alg = $algorithm:expr) => {
+    ($struct_ident:ty: alg = $algorithm:expr, hash = $hash_ty:ty) => {
+        impl $struct_ident {
+            /// Generates a suitable key for this algorithm.
+            #[cfg(feature = "rand")]
+            #[cfg_attr(docsrs, doc(cfg(feature = "rand")))]
+            pub fn generate_key<R>(rng: &mut R) -> Vec<u8>
+            where
+                R: rand_core::CryptoRngCore,
+            {
+                use hmac::digest::crypto_common::KeySizeUser;
+                let mut vec = vec![0u8; Hmac::<$hash_ty>::key_size()];
+                rng.fill_bytes(&mut vec);
+                vec
+            }
+        }
         impl JwsVerifier for $struct_ident {
             fn check_header(&self, header: &Header) -> bool {
                 return header.algorithm == $algorithm;
@@ -93,9 +107,21 @@ macro_rules! impl_hs {
     };
 }
 
-impl_hs!(HS256: alg = SigningAlgorithm::HS256);
-impl_hs!(HS384: alg = SigningAlgorithm::HS384);
-impl_hs!(HS512: alg = SigningAlgorithm::HS512);
+impl_hs!(
+    HS256:
+    alg = SigningAlgorithm::HS256,
+    hash = Sha256
+);
+impl_hs!(
+    HS384:
+    alg = SigningAlgorithm::HS384,
+    hash = Sha384
+);
+impl_hs!(
+    HS512:
+    alg = SigningAlgorithm::HS512,
+    hash = Sha512
+);
 
 #[cfg(test)]
 mod tests {
