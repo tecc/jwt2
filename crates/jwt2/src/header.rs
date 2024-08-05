@@ -1,13 +1,13 @@
 use crate::sign::SigningAlgorithm;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
-pub struct SigningHeader {
+pub struct Header {
     /// The algorithm that this object is/will be signed with.
     /// Corresponds to the `alg` header parameter.
     ///
     /// See [section 4.1.1 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.1).
     #[serde(rename = "alg")]
-    pub algorithm: SigningAlgorithm,
+    pub algorithm: Algorithm,
 
     /// The type of the object that is encoded with this header.
     /// Corresponds to the `typ` header parameter.
@@ -23,14 +23,14 @@ pub struct SigningHeader {
     /// This is a field that `jwt2` doesn't really support yet, but it is left in for the sake of
     /// being standards-compliant.
     ///
-    /// To validate this, use the [`SigningHeader::required_extensions`] function.
+    /// To validate this, use the [`Header::required_extensions`] function.
     ///
     /// See [section 4.1.11 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.11).
     #[serde(rename = "crit")]
     pub required_extensions: Option<Vec<String>>,
 }
-impl SigningHeader {
-    pub fn new(algorithm: SigningAlgorithm) -> Self {
+impl Header {
+    pub fn new(algorithm: Algorithm) -> Self {
         Self {
             algorithm,
             obj_type: None,
@@ -61,5 +61,25 @@ impl SigningHeader {
     /// In the future, however, this function should properly check if the parameters are handled.
     pub fn supports_required_extensions(&self) -> bool {
         self.required_extensions.is_some()
+    }
+}
+
+/// JSON Web Algorithm.
+#[derive(Copy, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+pub enum Algorithm {
+    /// An algorithm for use with JSON Web Signatures.
+    Signing(SigningAlgorithm),
+    /// The `none` algorithm, indicating that no digital signature
+    #[serde(rename = "none")]
+    None
+}
+
+impl PartialEq<SigningAlgorithm> for Algorithm {
+    fn eq(&self, other: &SigningAlgorithm) -> bool {
+        match self {
+            Self::Signing(me) => me == other,
+            _ => false
+        }
     }
 }

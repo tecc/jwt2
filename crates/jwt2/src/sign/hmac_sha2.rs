@@ -1,8 +1,8 @@
-//! # SHA2-based algorithms ([`HS256`], [`HS384`], [`HS512`]).
+//! # HMAC-based algorithms ([`HS256`], [`HS384`], [`HS512`])
 //!
 //! This module contains the implementations for all the HMAC/SHA2-based algorithms.
 //!
-//! These
+//! Among them, the most well-known is probably [`HS256`].
 //!
 //! ## Security considerations
 //! Per [section 3.2 of RFC 7518](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2),
@@ -12,14 +12,19 @@
 //!
 //! It is upon the user to ensure that keys are secure enough.
 
-use crate::header::SigningHeader;
-use crate::sign::{SigningAlgorithm, SigningVerifier};
+use crate::header::Header;
+use crate::sign::{SigningAlgorithm, JwsVerifier};
 use hmac::{Hmac, KeyInit, Mac};
 use sha2::{Sha256, Sha384, Sha512};
 
 pub type ConstructError = hmac::digest::InvalidLength;
 
 /// HMAC using SHA2-256.
+///
+/// This algorithm is required to be implemented (i.e. available) according to
+/// [section 3.1 of RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1),
+/// but `jwt2` does not enforce this requirement.
+/// In the terms of RFCs this crate treats `HS256`'s "Required" as a "Recommended".
 pub struct HS256 {
     inner: Hmac<Sha256>,
 }
@@ -66,8 +71,8 @@ impl HS512 {
 
 macro_rules! impl_hs {
     ($struct_ident:ty: alg = $algorithm:expr) => {
-        impl SigningVerifier for $struct_ident {
-            fn check_header(&self, header: &SigningHeader) -> bool {
+        impl JwsVerifier for $struct_ident {
+            fn check_header(&self, header: &Header) -> bool {
                 return header.algorithm == $algorithm;
             }
 

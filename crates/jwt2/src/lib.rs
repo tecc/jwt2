@@ -4,7 +4,9 @@ pub mod header;
 pub mod repr;
 pub mod sign;
 
-pub use header::SigningHeader;
-pub use sign::{SigningAlgorithm, SigningVerifier};
+pub(crate) mod util;
+
+pub use header::Header;
+pub use sign::{SigningAlgorithm, JwsVerifier};
 
 // TODO: Crate-level documentation.
