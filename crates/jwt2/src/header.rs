@@ -10,9 +10,16 @@ pub struct Header {
     pub algorithm: Algorithm,
 
     /// The type of the object that is encoded with this header.
+    /// Corresponds to the `kid` header parameter.
+    ///
+    /// See [section 4.1.4 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.4).
+    #[serde(rename = "kid")]
+    pub key_id: Option<String>,
+
+    /// The type of the object that is encoded with this header.
     /// Corresponds to the `typ` header parameter.
     ///
-    /// See [section 4.1.9 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.9)
+    /// See [section 4.1.9 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.9).
     #[serde(rename = "typ")]
     pub obj_type: Option<String>,
 
@@ -33,6 +40,7 @@ impl Header {
     pub fn new(algorithm: Algorithm) -> Self {
         Self {
             algorithm,
+            key_id: None,
             obj_type: None,
             required_extensions: None,
         }
