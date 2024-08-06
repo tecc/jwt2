@@ -1,11 +1,11 @@
 //! # RSA-based algorithms using PKCS1-v1_5 ([`RS256`], [`RS384`], [`RS512`])
 
 use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
+use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
 use rsa::pkcs1v15::{Signature, SigningKey, VerifyingKey};
 use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
-use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
-use signature::{Keypair, SignatureEncoding};
 use sha2::{Sha256, Sha384, Sha512};
+use signature::{Keypair, SignatureEncoding};
 
 pub struct RSAVerifierConfig {}
 
@@ -38,7 +38,7 @@ macro_rules! impl_rs {
                 SigningKey::from_pkcs8_pem(key).map(Self::from)
             }
 
-
+            /// Generates a new key.
             #[cfg(feature = "rand")]
             #[cfg_attr(docsrs, doc(cfg(feature = "rand")))]
             pub fn new_rand<R>(rng: &mut R, bits: usize) -> rsa::Result<Self> where R: rand_core::CryptoRngCore {
@@ -144,35 +144,42 @@ where
 mod tests {
     use super::*;
     use crate::repr::decode_bytes_from_base64url;
-    use rsa::pkcs1v15::{Signature, SigningKey};
+    use rsa::pkcs1v15::{Signature, SigningKey, VerifyingKey};
     use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
-    use signature::{Keypair, Signer, Verifier};
     use rsa::{RsaPrivateKey, RsaPublicKey};
     use sha2::Sha256;
+    use signature::{Keypair, Signer, Verifier};
 
+    // TODO: Delete this test and make some *actual* tests
     #[test]
     fn jwtio() {
-        let public_key = RsaPublicKey::from_public_key_pem(JWT_IO_PUBLIC_KEY)
-            .expect("could not decode public key");
-        let private_key = RsaPrivateKey::from_pkcs8_pem(JWT_IO_PRIVATE_KEY)
-            .expect("could not decode private key");
+        let signing_key: SigningKey<Sha256> =
+            SigningKey::from_pkcs8_pem(JWT_IO_PRIVATE_KEY).expect("could not decode private key");
+        let verifying_key: VerifyingKey<Sha256> =
+            VerifyingKey::from_public_key_pem(JWT_IO_PUBLIC_KEY)
+                .expect("could not decode public key");
 
         let data = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0";
         let bdata = data.as_bytes();
 
-        let signature = "VFb0qJ1LRg_4ujbZoRMXnVkUgiuKq5KxWqNdbKq_G9Vvz-S1zZa9LPxtHWKa64zDl2ofkT8F6jBt_K4riU-fPg";
+        let signature = "NHVaYe26MbtOYhSKkoKYdFVomg4i8ZJd8_-RU8VNbftc4TSMb4bXP3l3YlNWACwyXPGffz5aXHc6lty1Y2t4SWRqGteragsVdZufDn5BlnJl9pdR_kdVFUsra2rWKEofkZeIC4yWytE58sMIihvo9H1ScmmVwBcQP6XETqYd0aSHp1gOa9RdUPDvoXQ5oqygTqVtxaDr6wUFKrKItgBMzWIdNZ6y7O9E0DhEPTbE9rfBo6KTFsHAZnMg4k68CDp2woYIaXbmYTWcvbzIuHO7_37GT79XdIwkm95QJ7hYC9RiwrV7mesbY4PAahERJawntho0my942XheVLmGwLMBkQ";
         let signature = decode_bytes_from_base64url(signature).expect("could not decode signature");
 
-        let signature = Signature::try_from(&signature).expect("could not create");
-
-        let signing_key = SigningKey::<Sha256>::from(private_key);
-        let verifying_key = signing_key.verifying_key();
+        let signature = Signature::try_from(signature.as_slice()).expect("could not create");
 
         verifying_key
-            .verify(data.as_bytes(), &signature)
+            .verify(bdata, &signature)
             .expect("Verification failed");
+
         let new_signature = signing_key.sign(&bdata);
         assert_eq!(new_signature, signature);
+
+        let new_verifying_key = signing_key.verifying_key();
+        assert_eq!(verifying_key, new_verifying_key);
+
+        new_verifying_key
+            .verify(data.as_bytes(), &signature)
+            .expect("Verification failed");
     }
 
     // Taken fro [jwt.io](https://jwt.io).

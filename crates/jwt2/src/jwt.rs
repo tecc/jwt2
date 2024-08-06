@@ -1,6 +1,6 @@
+use crate::{repr, Header, JwsSigner, JwsVerifier};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use crate::{repr, Header, JwsSigner, JwsVerifier};
 
 pub struct JwtData<Claims> {
     pub header: Header,
@@ -11,7 +11,7 @@ impl<Claims> JwtData<Claims> {
     pub fn create_jws<Signer>(&self, signer: &Signer) -> Result<String, JwtCreateError>
     where
         Signer: JwsSigner,
-        Claims: Serialize
+        Claims: Serialize,
     {
         // NOTE(tecc): This code so fundamentally bothers my allocation-hating mind,
         //             but I'll leave it like this since It Can Be Improved Later.
@@ -52,11 +52,14 @@ impl<'a> RawJwt<'a> {
         })
     }
 
-    pub fn parse<Claims>(&self) -> Result<JwtData<Claims>, JwtDecodeError> where Claims: DeserializeOwned {
+    pub fn parse<Claims>(&self) -> Result<JwtData<Claims>, JwtDecodeError>
+    where
+        Claims: DeserializeOwned,
+    {
         let claims: Claims = repr::decode_value_from_base64url(self.payload)?;
         Ok(JwtData {
             header: self.header.clone(),
-            claims
+            claims,
         })
     }
 
@@ -108,5 +111,5 @@ pub enum JwtDecodeError {
 #[derive(Debug, thiserror::Error)]
 pub enum JwtCreateError {
     #[error("could not encode value: {0}")]
-    Encode(#[from] serde_json::Error) // Currently repr only has encoding errors because of Serde so :)
+    Encode(#[from] serde_json::Error), // Currently repr only has encoding errors because of Serde so :)
 }

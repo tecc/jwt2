@@ -19,7 +19,6 @@ pub use rsa_pkcs1::{RS256Public, RS384Public, RS512Public, RS256, RS384, RS512};
 #[cfg_attr(docsrs, doc(cfg(feature = "ecdsa")))]
 pub mod ecdsa;
 
-
 use crate::header::Header;
 use crate::util::algorithms_decl;
 

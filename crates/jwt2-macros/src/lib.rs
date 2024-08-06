@@ -13,5 +13,7 @@ use proc_macro2::Span;
 
 #[proc_macro_derive(Claims, attributes(jwt2))]
 pub fn derive_claims(_input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    syn::Error::new(Span::call_site(), "This macro is not yet supported").into_compile_error().into()
+    syn::Error::new(Span::call_site(), "This macro is not yet supported")
+        .into_compile_error()
+        .into()
 }
