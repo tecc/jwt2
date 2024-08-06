@@ -119,7 +119,7 @@ algorithms_decl!(
 /// }
 /// ```
 pub trait JwsVerifier {
-    /// Check that the header is valid and supported by this verifier.
+    /// Check that the header is supported by this verifier.
     fn check_header(&self, header: &Header) -> bool;
     /// Verifies that `signature` is a valid signature for `data`.
     ///
@@ -146,4 +146,6 @@ pub trait JwsSigner {
 
     /// Creates a signature for data.
     fn sign(&self, data: &[u8]) -> Vec<u8>;
+    // TODO: Possibly introduce errors for `JwsSigner::sign` (the function before this comment)
+    // TODO: A streaming version of `sign` so we don't have to allocate 5000 times (see `Jwt::create_jws`)
 }

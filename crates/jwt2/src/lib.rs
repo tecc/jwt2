@@ -11,5 +11,6 @@ pub use header::Header;
 pub use sign::{JwsSigner, JwsVerifier, SigningAlgorithm};
 
 pub use util::WithKeyId;
+pub use jwt::JwtData;
 
 // TODO: Crate-level documentation.
