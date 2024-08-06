@@ -36,6 +36,7 @@ macro_rules! algorithms_decl {
             }
         }
 
+        #[allow(unreachable_code)]
         impl serde::ser::Serialize for $enum_ident {
             fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
                 where S: serde::ser::Serializer
@@ -147,4 +148,8 @@ where
     fn sign(&self, data: &[u8]) -> Vec<u8> {
         self.inner.sign(data)
     }
+}
+
+pub(crate) fn to_byte_vec(r: &[u8]) -> Vec<u8> {
+    Vec::from(r)
 }

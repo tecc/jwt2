@@ -65,7 +65,7 @@ macro_rules! impl_rs {
                 VerifyingKey::from_pkcs1_pem(key).map(Self::from)
             }
             pub fn parse_pkcs8_pem(key: &str) -> rsa::pkcs8::spki::Result<Self> {
-                VerifyingKey::from_public_key_pem(key).map(Self::from)
+                VerifyingKey::<$hash_ty>::from_public_key_pem(key).map(Self::from)
             }
         }
         impl Algo for $main_ident {

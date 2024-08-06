@@ -107,11 +107,14 @@ impl_es!(
     public: ES384Public,
     curve: p384::NistP384
 );
+// We do not have an ES512 implementation because the p521 crate does not play nice.
+// I'm considering switching to `ring` for this reason.
+/*
 impl_es!(
     main: ES512,
     public: ES512Public,
     curve: p521::NistP521
-);
+);*/
 
 #[cfg(test)]
 mod tests {

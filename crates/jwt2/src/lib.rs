@@ -7,7 +7,7 @@ pub mod sign;
 pub mod jwt;
 pub mod util;
 
-pub use header::Header;
+pub use header::{Header, Algorithm};
 pub use sign::{JwsSigner, JwsVerifier, SigningAlgorithm};
 
 pub use jwt::JwtData;

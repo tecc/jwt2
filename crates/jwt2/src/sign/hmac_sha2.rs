@@ -14,7 +14,7 @@
 
 use crate::header::Header;
 use crate::sign::{JwsSigner, JwsVerifier, SigningAlgorithm};
-use hmac::{Hmac, KeyInit, Mac};
+use hmac::{Hmac, Mac};
 use sha2::{Sha256, Sha384, Sha512};
 
 pub type ConstructError = hmac::digest::InvalidLength;
@@ -101,7 +101,7 @@ macro_rules! impl_hs {
                 let mut inner = self.inner.clone();
                 inner.update(data);
                 let result = inner.finalize();
-                Vec::from(result.into_bytes().0)
+                crate::util::to_byte_vec(result.into_bytes().as_ref())
             }
         }
     };

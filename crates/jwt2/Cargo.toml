@@ -21,8 +21,8 @@ recommended = ["hmac-sha2"]
 
 hmac-sha2 = ["dep:hmac", "dep:sha2"]
 # This name might be changed sometime since it may not be a good name.
-rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
-ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384", "dep:p521"]
+# rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
+# ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384"] # "dep:p521"
 
 macros = ["dep:jwt2-macros"]
 
@@ -36,11 +36,11 @@ version = "1.6"
 features = ["alloc"]
 
 [dependencies.ecdsa]
-version = "0.17.0-pre"
+version = "0.16.9"
 optional = true
 
 [dependencies.hmac]
-version = "^0.13.0-pre"
+version = "0.12.1"
 optional = true
 
 [dependencies.jwt2-macros]
@@ -48,28 +48,29 @@ version = "0.1.0"
 path = "../jwt2-macros"
 optional = true
 
-[dependencies.p256]
-version = "^0.14.0-pre"
-optional = true
+# [dependencies.p256]
+# version = "0.13.2"
+# optional = true
 
-[dependencies.p384]
-version = "^0.14.0-pre"
-optional = true
+# [dependencies.p384]
+# version = "0.13.0"
+# optional = true
 
 # Personal note:
 # It really bothers me that all of the crates and numbers are consistent until
 # this one. It's also just the 2 and 1 swapped!! Why?!
-[dependencies.p521]
-version = "0.14.0-pre"
-optional = true
+# [dependencies.p521]
+# version = "0.13.3"
+# optional = true
 
 [dependencies.rand_core]
 version = "^0.6"
 optional = true
 
-[dependencies.rsa]
-version = "^0.10.0-pre"
-optional = true
+# [dependencies.rsa]
+# version = "0.9.6"
+# optional = true
+# features = ["sha2"]
 
 [dependencies.serde]
 version = "1"
@@ -79,13 +80,11 @@ features = ["derive"]
 version = "1"
 
 [dependencies.signature]
-version = "^2.3.0-pre"
+version = "^2.2.0"
 optional = true
 
 [dependencies.sha2]
-# We use the 0.11-pre versions for now because
-# they're just generally more pleasant to work with.
-version = "0.11.0-pre"
+version = "0.10.8"
 optional = true
 
 [dependencies.thiserror]
