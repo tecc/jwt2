@@ -73,7 +73,7 @@ impl Header {
 }
 
 /// JSON Web Algorithm.
-#[derive(Copy, Clone, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Algorithm {
     /// The `none` algorithm, indicating that no digital signature
     #[serde(rename = "none")]
@@ -88,6 +88,16 @@ impl PartialEq<SigningAlgorithm> for Algorithm {
         match self {
             Self::Signing(me) => me == other,
             _ => false,
+        }
+    }
+}
+
+// Don't ask me why I chose core::fmt instead of std::fmt
+impl core::fmt::Display for Algorithm {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        match self {
+            Self::None => f.write_str("<none>"),
+            Self::Signing(alg) => core::fmt::Display::fmt(alg, f)
         }
     }
 }

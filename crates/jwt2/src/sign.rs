@@ -35,7 +35,7 @@ algorithms_decl!(
     ///
     /// See [section 3 of RFC 7518](https://www.rfc-editor.org/rfc/rfc7518.html#section-3)
     /// for a reference regarding the algorithms that `jwt2` should support.
-    #[derive(Copy, Clone, Eq, PartialEq, Hash)]
+    #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
     #[non_exhaustive]
     SigningAlgorithm;
     /// HMAC using SHA2-256. See [`hmac_sha2::HS256`] and the [`hmac_sha2`] module.

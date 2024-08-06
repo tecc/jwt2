@@ -23,6 +23,11 @@ macro_rules! algorithms_decl {
 
         #[allow(unreachable_code, unreachable_patterns)]
         const _: () = {
+            $(
+            $( $(#[$variant_attrs_cfg])* )?
+            const $variant_ident: &'static str = stringify!($variant_ident);
+            )*
+
             impl core::str::FromStr for $enum_ident {
                 type Err = ();
 
@@ -32,11 +37,23 @@ macro_rules! algorithms_decl {
                     // algorithm names are indeed case-sensitive.
                     $(
                         $( $(#[$variant_attrs_cfg])* )?
-                        if value.eq(stringify!($variant_ident)) {
+                        if value.eq($variant_ident) {
                             return Ok(Self::$variant_ident);
                         }
                     )*
                     Err(())
+                }
+            }
+
+            impl core::fmt::Display for $enum_ident {
+                fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+                    match self {
+                        $(
+                        $( $(#[$variant_attrs_cfg])* )?
+                        Self::$variant_ident => f.write_str($variant_ident),
+                        )*
+                        _ => f.write_str("<invalid>")
+                    }
                 }
             }
 
@@ -47,7 +64,7 @@ macro_rules! algorithms_decl {
                     match self {
                         $(
                         $( $(#[$variant_attrs_cfg])* )?
-                        Self::$variant_ident => ser.serialize_str(stringify!($variant_ident)),
+                        Self::$variant_ident => ser.serialize_str($variant_ident),
                         )*
                         _ => panic!("The default match should not be reachable for this enum")
                     }
@@ -67,8 +84,6 @@ macro_rules! algorithms_decl {
 
                         fn visit_str<E>(self, value: &str) -> Result<Self::Value, E> where E: serde::de::Error {
                             $(
-                            $( $(#[$variant_attrs_cfg])* )?
-                            const $variant_ident: &'static str = stringify!($variant_ident);
                             $( $(#[$variant_attrs_cfg])* )?
                             if value.eq($variant_ident) {
                                 return Ok($enum_ident::$variant_ident);
