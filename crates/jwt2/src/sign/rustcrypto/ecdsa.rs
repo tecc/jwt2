@@ -5,6 +5,7 @@
 //! The prerelease version of the `p521` crate *is* compatible, but it would break
 //! the dependency tree into smithereens, so for now you'll have to live without.
 
+use base64ct::LineEnding;
 use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
 use ecdsa::elliptic_curve::pkcs8::{
     DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey,
@@ -40,6 +41,11 @@ macro_rules! impl_es {
                 SigningKey::from_pkcs8_pem(key).map(Self::from)
             }
 
+            // NOTE(tecc): Maybe more direct dependencies so we can avoid these absurdly long type names?
+            pub fn encode_as_pkcs8_pem(&self) -> ecdsa::elliptic_curve::pkcs8::Result<ecdsa::elliptic_curve::pkcs8::der::zeroize::Zeroizing<String>> {
+                EncodePrivateKey::to_pkcs8_pem(&self.key, LineEnding::default())
+            }
+
             /// Generates a new key.
             #[cfg(feature = "rand")]
             #[cfg_attr(docsrs, doc(cfg(feature = "rand")))]
@@ -67,6 +73,9 @@ macro_rules! impl_es {
             }
             pub fn parse_pem(key: &str) -> ecdsa::elliptic_curve::pkcs8::spki::Result<Self> {
                 VerifyingKey::from_public_key_pem(key).map(Self::from)
+            }
+            pub fn encode_as_pkcs8_pem(&self) -> ecdsa::elliptic_curve::pkcs8::spki::Result<String> {
+                EncodePublicKey::to_public_key_pem(&self.key, LineEnding::default())
             }
         }
 

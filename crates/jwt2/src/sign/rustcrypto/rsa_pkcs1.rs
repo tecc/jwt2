@@ -1,9 +1,10 @@
 //! # RSA-based algorithms using PKCS1-v1_5 ([`RS256`], [`RS384`], [`RS512`])
 
+use base64ct::LineEnding;
 use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
 use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
 use rsa::pkcs1v15::{Signature, SigningKey, VerifyingKey};
-use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey};
+use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey};
 use sha2::{Sha256, Sha384, Sha512};
 use signature::{Keypair, SignatureEncoding};
 
@@ -38,6 +39,11 @@ macro_rules! impl_rs {
                 SigningKey::from_pkcs8_pem(key).map(Self::from)
             }
 
+            // NOTE(tecc): Maybe more direct dependencies so we can avoid these absurdly long type names?
+            pub fn encode_as_pkcs8_pem(&self) -> rsa::pkcs8::Result<rsa::pkcs8::der::zeroize::Zeroizing<String>> {
+                EncodePrivateKey::to_pkcs8_pem(&self.key, LineEnding::default())
+            }
+
             /// Generates a new key.
             #[cfg(feature = "rand")]
             #[cfg_attr(docsrs, doc(cfg(feature = "rand")))]
@@ -66,6 +72,10 @@ macro_rules! impl_rs {
             }
             pub fn parse_pkcs8_pem(key: &str) -> rsa::pkcs8::spki::Result<Self> {
                 VerifyingKey::<$hash_ty>::from_public_key_pem(key).map(Self::from)
+            }
+
+            pub fn encode_as_pkcs8_pem(&self) -> rsa::pkcs8::spki::Result<String> {
+                EncodePublicKey::to_public_key_pem(&self.key, LineEnding::default())
             }
         }
         impl Algo for $main_ident {
@@ -109,6 +119,11 @@ impl_rs!(
 /// RSA algorithm.
 pub struct GenericRsaImpl<Key> {
     key: Key,
+}
+impl<Key> GenericRsaImpl<Key> {
+    pub fn get_key(&self) -> &Key {
+        &self.key
+    }
 }
 
 trait Algo {
