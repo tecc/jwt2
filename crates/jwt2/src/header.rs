@@ -119,5 +119,11 @@ mod tests {
             test!(Algorithm::Signing(SigningAlgorithm::RS384) => "\"RS384\"");
             test!(Algorithm::Signing(SigningAlgorithm::RS512) => "\"RS512\"");
         }
+        #[cfg(feature = "ecdsa")]
+        {
+            test!(Algorithm::Signing(SigningAlgorithm::ES256) => "\"ES256\"");
+            test!(Algorithm::Signing(SigningAlgorithm::ES384) => "\"ES384\"");
+            // test!(Algorithm::Signing(SigningAlgorithm::ES512) => "\"ES512\"");
+        }
     }
 }
