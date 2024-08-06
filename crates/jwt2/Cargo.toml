@@ -24,6 +24,8 @@ hmac-sha2 = ["dep:hmac", "dep:sha2"]
 rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
 ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384", "dep:p521"]
 
+macros = ["dep:jwt2-macros"]
+
 # Will allow for generation of keys.
 # This is mostly a utility.
 # Note that in some cases rand_core may be included either way (example: the rsa crate)
@@ -39,6 +41,11 @@ optional = true
 
 [dependencies.hmac]
 version = "^0.13.0-pre"
+optional = true
+
+[dependencies.jwt2-macros]
+version = "0.1.0"
+path = "../jwt2-macros"
 optional = true
 
 [dependencies.p256]

@@ -211,6 +211,7 @@ dependencies = [
  "base64ct",
  "ecdsa",
  "hmac",
+ "jwt2-macros",
  "p256",
  "p384",
  "p521",
@@ -226,6 +227,11 @@ dependencies = [
 [[package]]
 name = "jwt2-macros"
 version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "lazy_static"
