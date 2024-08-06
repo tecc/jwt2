@@ -1,9 +1,11 @@
-//! # ECDSA-based algorithms ([`ES256`], [`ES384`], [`ES512`])
+//! # ECDSA-based algorithms ([`ES256`], [`ES384`])
 //!
+//! Currently, `ES512` is not implemented because neither RustCrypto nor ring support it.
 //!
+//! The prerelease version of the `p521` crate *is* compatible, but it would break
+//! the dependency tree into smithereens, so for now you'll have to live without.
 
 use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
-use base64ct::LineEnding;
 use ecdsa::elliptic_curve::pkcs8::{
     DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey,
 };
@@ -98,17 +100,25 @@ macro_rules! impl_es {
 // TODO: Documentation
 
 impl_es!(
+    /// ECDSA using NIST P-256 and SHA2-256.
     main: ES256,
     public: ES256Public,
     curve: p256::NistP256
 );
 impl_es!(
+    /// ECDSA using NIST P-384 and SHA2-384.
     main: ES384,
     public: ES384Public,
     curve: p384::NistP384
 );
 // We do not have an ES512 implementation because the p521 crate does not play nice.
 // I'm considering switching to `ring` for this reason.
+// NOTE(tecc): `ring` doesn't have it either :)
+//             I guess fate doesn't like Rust having an ES512 implementation here
+//             ---
+//             In the future, when we can upgrade RustCrypto dependencies to use the currently
+//             prerelease versions, ES512 will be implemented and I will be happy.
+//             Thank the stars that ES512 isn't a requirement.
 /*
 impl_es!(
     main: ES512,
@@ -124,52 +134,86 @@ mod tests {
     use ecdsa::RecoveryId;
     use signature::{Signer, Verifier};
 
+    macro_rules! test_ecdsa {
+        (
+            $private_ty:path = $private_key:expr,
+            $public_ty:path = $public_key:expr =>
+            data: $data:expr,
+            sig: $signature:expr
+        ) => {{
+            {
+                let data: &[u8] = { $data }.as_ref();
+                let signature =
+                    repr::decode_bytes_from_base64url($signature).expect("invalid signature");
+
+                let private_instance = <$private_ty>::from($private_key);
+
+                let created_signature = private_instance.sign(data);
+                // eprintln!("{}", repr::encode_bytes_as_base64url(&created_signature));
+
+                let public_instance = <$public_ty>::from($public_key);
+                assert!(
+                    public_instance.verify_signature(data, &signature),
+                    "Precalculated signature does not match"
+                );
+                assert!(
+                    public_instance.verify_signature(data, &created_signature),
+                    "Precalculated signature does not match"
+                );
+            }
+        }};
+    }
+
     #[test]
-    fn jwtio() {
-        let signature = "tyh-VfuzIxCyGYDlkBA7DfyjrqmSHu6pQ2hoZuFqUSLPNY2N0mpHb3nk5K17HWP_3cYHBw7AhHale5wky6-sVA";
-        let signature =
-            repr::decode_bytes_from_base64url(signature).expect("Could not decode signature");
-        let signature: Signature<p256::NistP256> =
-            ecdsa::Signature::try_from(signature.as_slice()).expect("Could not parse signature");
-
-        let data = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0";
-        let bdata = data.as_bytes();
-
-        // p256::elliptic_curve::PublicKey::from_public_key_pem();
-        let signing_key: SigningKey<p256::NistP256> =
+    fn es256() {
+        let jwtio_private_key: SigningKey<p256::NistP256> =
             SigningKey::from_pkcs8_pem(JWTIO_PRIVATE_KEY_ES256)
                 .expect("Could not decode signing key");
-
-        let verifying_key: VerifyingKey<p256::NistP256> =
+        let jwtio_public_key: VerifyingKey<p256::NistP256> =
             VerifyingKey::from_public_key_pem(JWTIO_PUBLIC_KEY_ES256)
                 .expect("Could not decode verifying key");
 
-        verifying_key
-            .verify(bdata, &signature)
-            .expect("Signature is incorrect");
-
-        let new_signature: Signature<p256::NistP256> = Signer::sign(&signing_key, bdata);
-        let new_signature2: Signature<p256::NistP256> = Signer::sign(&signing_key, bdata);
-
-        eprintln!(
-            "{}\n{}\n{}",
-            repr::encode_bytes_as_base64url(&signature.to_bytes()),
-            repr::encode_bytes_as_base64url(&new_signature.to_bytes()),
-            repr::encode_bytes_as_base64url(&new_signature2.to_bytes())
+        test_ecdsa!(
+            ES256 = jwtio_private_key.clone(), ES256Public = jwtio_public_key.clone() =>
+            data: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0",
+            sig:  "tyh-VfuzIxCyGYDlkBA7DfyjrqmSHu6pQ2hoZuFqUSLPNY2N0mpHb3nk5K17HWP_3cYHBw7AhHale5wky6-sVA"
         );
-
-        verifying_key
-            .verify(bdata, &new_signature)
-            .expect("Signature is incorrect");
     }
 
-    const JWTIO_PUBLIC_KEY_ES256: &str = "-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs/o5+uQbTjL3chynL4wXgUg2R9
-q9UU8I5mEovUf86QZ7kOBIjJwqnzD1omageEHWwHdBO6B+dFabmdT9POxg==
------END PUBLIC KEY-----";
+    #[test]
+    fn es384() {
+        let jwtio_private_key: SigningKey<p384::NistP384> =
+            SigningKey::from_pkcs8_pem(JWTIO_PRIVATE_KEY_ES384)
+                .expect("Could not decode signing key");
+        let jwtio_public_key: VerifyingKey<p384::NistP384> =
+            VerifyingKey::from_public_key_pem(JWTIO_PUBLIC_KEY_ES384)
+                .expect("Could not decode verifying key");
+        test_ecdsa!(
+            ES384 = jwtio_private_key.clone(), ES384Public = jwtio_public_key.clone() =>
+            data: "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0",
+            sig:  "VUPWQZuClnkFbaEKCsPy7CZVMh5wxbCSpaAWFLpnTe9J0--PzHNeTFNXCrVHysAa3eFbuzD8_bLSsgTKC8SzHxRVSj5eN86vBPo_1fNfE7SHTYhWowjY4E_wuiC13yoj"
+        );
+    }
+
     const JWTIO_PRIVATE_KEY_ES256: &str = "-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hb2
 OF/2NxApJCzGCEDdfSp6VQO30hyhRANCAAQRWz+jn65BtOMvdyHKcvjBeBSDZH2r
 1RTwjmYSi9R/zpBnuQ4EiMnCqfMPWiZqB4QdbAd0E7oH50VpuZ1P087G
 -----END PRIVATE KEY-----";
+    const JWTIO_PUBLIC_KEY_ES256: &str = "-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEEVs/o5+uQbTjL3chynL4wXgUg2R9
+q9UU8I5mEovUf86QZ7kOBIjJwqnzD1omageEHWwHdBO6B+dFabmdT9POxg==
+-----END PUBLIC KEY-----";
+
+    const JWTIO_PRIVATE_KEY_ES384: &str = "-----BEGIN PRIVATE KEY-----
+MIG2AgEAMBAGByqGSM49AgEGBSuBBAAiBIGeMIGbAgEBBDCAHpFQ62QnGCEvYh/p
+E9QmR1C9aLcDItRbslbmhen/h1tt8AyMhskeenT+rAyyPhGhZANiAAQLW5ZJePZz
+MIPAxMtZXkEWbDF0zo9f2n4+T1h/2sh/fviblc/VTyrv10GEtIi5qiOy85Pf1RRw
+8lE5IPUWpgu553SteKigiKLUPeNpbqmYZUkWGh3MLfVzLmx85ii2vMU=
+-----END PRIVATE KEY-----";
+    const JWTIO_PUBLIC_KEY_ES384: &str = "-----BEGIN PUBLIC KEY-----
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEC1uWSXj2czCDwMTLWV5BFmwxdM6PX9p+
+Pk9Yf9rIf374m5XP1U8q79dBhLSIuaojsvOT39UUcPJROSD1FqYLued0rXiooIii
+1D3jaW6pmGVJFhodzC31cy5sfOYotrzF
+-----END PUBLIC KEY-----";
 }

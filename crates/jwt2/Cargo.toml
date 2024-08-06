@@ -22,7 +22,7 @@ recommended = ["hmac-sha2"]
 hmac-sha2 = ["dep:hmac", "dep:sha2"]
 # This name might be changed sometime since it may not be a good name.
 # rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
-ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384"] # "dep:p521"
+ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "p256/ecdsa", "dep:p384", "p384/ecdsa"] # "dep:p521"
 # cdsa = ["dep:ring"]
 
 macros = ["dep:jwt2-macros"]

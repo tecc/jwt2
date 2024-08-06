@@ -84,12 +84,13 @@ algorithms_decl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "ecdsa")))]
     ES384 {
         cfg: #[cfg(feature = "ecdsa")];
-    },
+    }
+    /*
     /// ECDSA using P-521 and SHA2-512.
     #[cfg_attr(docsrs, doc(cfg(feature = "ecdsa")))]
     ES512 {
         cfg: #[cfg(feature = "ecdsa")];
-    }
+    }*/
 );
 
 /// Signifies that something can verify a signature (see [`JwsVerifier::verify_signature`]).
