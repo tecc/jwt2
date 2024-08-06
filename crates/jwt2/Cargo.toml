@@ -22,7 +22,8 @@ recommended = ["hmac-sha2"]
 hmac-sha2 = ["dep:hmac", "dep:sha2"]
 # This name might be changed sometime since it may not be a good name.
 # rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
-# ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384"] # "dep:p521"
+ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "dep:p384"] # "dep:p521"
+# cdsa = ["dep:ring"]
 
 macros = ["dep:jwt2-macros"]
 
@@ -48,13 +49,13 @@ version = "0.1.0"
 path = "../jwt2-macros"
 optional = true
 
-# [dependencies.p256]
-# version = "0.13.2"
-# optional = true
+[dependencies.p256]
+version = "0.13.2"
+optional = true
 
-# [dependencies.p384]
-# version = "0.13.0"
-# optional = true
+[dependencies.p384]
+version = "0.13.0"
+optional = true
 
 # Personal note:
 # It really bothers me that all of the crates and numbers are consistent until
@@ -67,8 +68,9 @@ optional = true
 version = "^0.6"
 optional = true
 
-[dependencies.ring]
-version = "0.17.8"
+# [dependencies.ring]
+# version = "0.17.8"
+# optional = true
 
 # [dependencies.rsa]
 # version = "0.9.6"

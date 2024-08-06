@@ -1,0 +1,8 @@
+The reason why I've separated the implementations like this is because
+I'm still in the process of figuring jwt2 out.
+
+I may have jwt2 switch to using `ring` in the future, or maybe I'll split the
+algorithm implementations into their own separate crates so that you can choose
+whether you want to use `ring` or the `RustCrypto` family.
+
+  - tecc

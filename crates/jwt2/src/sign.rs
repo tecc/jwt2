@@ -1,5 +1,6 @@
 #[cfg(feature = "hmac-sha2")]
 #[cfg_attr(docsrs, doc(cfg(feature = "hmac-sha2")))]
+#[path = "sign/rustcrypto/hmac_sha2.rs"]
 pub mod hmac_sha2;
 
 #[cfg(feature = "hmac-sha2")]
@@ -8,6 +9,7 @@ pub use hmac_sha2::{HS256, HS384, HS512};
 
 #[cfg(feature = "rsa-pkcs1")]
 #[cfg_attr(docsrs, doc(cfg(feature = "rsa-pkcs1")))]
+#[path = "sign/rustcrypto/rsa_pkcs1.rs"]
 pub mod rsa_pkcs1;
 
 #[cfg(feature = "rsa-pkcs1")]
@@ -17,6 +19,7 @@ pub use rsa_pkcs1::{RS256Public, RS384Public, RS512Public, RS256, RS384, RS512};
 // My goodness this is a long list of feature flags.
 #[cfg(feature = "ecdsa")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ecdsa")))]
+#[path = "sign/rustcrypto/ecdsa.rs"]
 pub mod ecdsa;
 
 use crate::header::Header;

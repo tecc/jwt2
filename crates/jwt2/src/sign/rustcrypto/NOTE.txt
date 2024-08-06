@@ -1,2 +1,0 @@
-These are apparently not that stable so I've decided to switch to ring or something.
-I don't f**king know I'm just trying to get this to work in the way I want it to.
