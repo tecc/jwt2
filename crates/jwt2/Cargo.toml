@@ -67,6 +67,9 @@ optional = true
 version = "^0.6"
 optional = true
 
+[dependencies.ring]
+version = "0.17.8"
+
 # [dependencies.rsa]
 # version = "0.9.6"
 # optional = true
