@@ -45,6 +45,7 @@ macro_rules! algorithms_decl {
                     $( $(#[$variant_attrs_cfg])* )?
                     Self::$variant_ident => ser.serialize_str(stringify!($variant_ident)),
                     )*
+                    _ => panic!("The default match should not be reachable for this enum")
                 }
             }
         }
