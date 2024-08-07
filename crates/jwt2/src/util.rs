@@ -1,4 +1,5 @@
 mod with_keyid;
+mod trait_impls;
 
 pub use with_keyid::*;
 

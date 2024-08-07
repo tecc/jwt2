@@ -151,8 +151,6 @@ mod tests {
     use super::*;
     use crate::repr;
     use ecdsa::elliptic_curve::pkcs8::{DecodePrivateKey, DecodePublicKey};
-    use ecdsa::RecoveryId;
-    use signature::{Signer, Verifier};
 
     macro_rules! test_ecdsa {
         (
