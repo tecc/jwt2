@@ -22,8 +22,8 @@ pub use rsa_pkcs1::{RS256Public, RS384Public, RS512Public, RS256, RS384, RS512};
 #[path = "sign/rustcrypto/ecdsa.rs"]
 pub mod ecdsa;
 
-use crate::header::Header;
 use crate::util::algorithms_decl;
+use crate::{RecommendHeaderParams, ValidateHeaderParams};
 
 algorithms_decl!(
     /// Signing algorithms supported by `jwt2`.
@@ -96,12 +96,12 @@ algorithms_decl!(
 /// Signifies that something can verify a signature (see [`JwsVerifier::verify_signature`]).
 ///
 /// This trait can also easily be used in cases where multiple verifiers are required,
-/// by using [`JwsVerifier::check_header`] on all available verifiers:
+/// by using [`ValidateHeaderParams::validate_header`] on all available verifiers:
 ///
 /// ```
 /// use jwt2::repr::{decode_bytes_from_base64url, decode_value_from_base64url};
 /// use jwt2::sign::hmac_sha2::HS256;
-/// use jwt2::{Header, JwsVerifier};
+/// use jwt2::{Header, JwsVerifier, ValidateHeaderParams};
 ///
 /// // Step 1: Declare your verifiers in some easily-accessible place.
 /// let hs256 = HS256::new(b"your-256-bit-secret").expect("Could not construct HS256");
@@ -117,13 +117,14 @@ algorithms_decl!(
 /// let header: Header = decode_value_from_base64url(header).expect("could not decode header");
 ///
 /// for verifier in verifiers {
-///     if !verifier.check_header(&header) { continue; }
+///     if !verifier.validate_header(&header) { continue; }
 ///     assert!(verifier.verify_signature(jwt_header_and_payload.as_bytes(), &signature));
 /// }
 /// ```
-pub trait JwsVerifier {
-    /// Check that the header is supported by this verifier.
-    fn check_header(&self, header: &Header) -> bool;
+///
+/// [`ValidateHeaderParams`] is a supertrait for the above reason.
+/// It is also somewhat "expected" that a verifier will only work with certain header parameters.
+pub trait JwsVerifier: ValidateHeaderParams {
     /// Verifies that `signature` is a valid signature for `data`.
     ///
     /// Note that this will not tell you if `signature` itself is invalid.
@@ -143,7 +144,10 @@ pub trait JwsVerifier {
 /// let expected_signature = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 /// assert_eq!(signature, expected_signature);
 /// ```
-pub trait JwsSigner {
+///
+/// [`RecommendHeaderParams`] is a supertrait for utility reasons:
+/// a signer should have header parameter values that they recommend the header use.
+pub trait JwsSigner: RecommendHeaderParams {
     // TODO: Maybe a function that modifies a header?
     //       That might be a bit *eh* since the algorithm could make potentially unwanted changes.
 

@@ -1,4 +1,4 @@
-use crate::sign::SigningAlgorithm;
+use crate::sign;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Header {
@@ -80,11 +80,11 @@ pub enum Algorithm {
     None,
     /// An algorithm for use with JSON Web Signatures.
     #[serde(untagged)]
-    Signing(SigningAlgorithm),
+    Signing(sign::SigningAlgorithm),
 }
 
-impl PartialEq<SigningAlgorithm> for Algorithm {
-    fn eq(&self, other: &SigningAlgorithm) -> bool {
+impl PartialEq<sign::SigningAlgorithm> for Algorithm {
+    fn eq(&self, other: &sign::SigningAlgorithm) -> bool {
         match self {
             Self::Signing(me) => me == other,
             _ => false,
@@ -102,12 +102,28 @@ impl core::fmt::Display for Algorithm {
     }
 }
 
+/// Indicates that something can validate header parameters. Useful with [`sign::JwsVerifier`].
+pub trait ValidateHeaderParams {
+    /// Check that the header is supported by this verifier.
+    fn validate_header(&self, header: &Header) -> bool;
+}
+/// Something that can recommend header parameters. Useful with [`sign::JwsSigner`].
+pub trait RecommendHeaderParams {
+    fn alg(&self) -> Option<Algorithm> {
+        None
+    }
+    fn kid(&self) -> Option<&str> {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn alg_value() {
+        use sign::SigningAlgorithm;
         macro_rules! test {
             ($value:expr => $expected:expr) => {
                 let value = $value;

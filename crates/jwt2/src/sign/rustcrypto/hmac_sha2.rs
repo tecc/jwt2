@@ -12,7 +12,7 @@
 //!
 //! It is upon the user to ensure that keys are secure enough.
 
-use crate::header::Header;
+use crate::header::{Header, Algorithm, ValidateHeaderParams, RecommendHeaderParams};
 use crate::sign::{JwsSigner, JwsVerifier, SigningAlgorithm};
 use hmac::{Hmac, Mac};
 use sha2::{Sha256, Sha384, Sha512};
@@ -85,15 +85,10 @@ macro_rules! impl_hs {
                 vec
             }
         }
-        impl JwsVerifier for $struct_ident {
-            fn check_header(&self, header: &Header) -> bool {
-                return header.algorithm == $algorithm;
-            }
 
-            fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
-                let mut inner = self.inner.clone();
-                inner.update(data);
-                return inner.verify_slice(signature).is_ok();
+        impl RecommendHeaderParams for $struct_ident {
+            fn alg(&self) -> Option<Algorithm> {
+                Some(Algorithm::Signing($algorithm))
             }
         }
         impl JwsSigner for $struct_ident {
@@ -102,6 +97,19 @@ macro_rules! impl_hs {
                 inner.update(data);
                 let result = inner.finalize();
                 crate::util::to_byte_vec(result.into_bytes().as_ref())
+            }
+        }
+
+        impl ValidateHeaderParams for $struct_ident {
+            fn validate_header(&self, header: &Header) -> bool {
+                header.algorithm == $algorithm
+            }
+        }
+        impl JwsVerifier for $struct_ident {
+            fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
+                let mut inner = self.inner.clone();
+                inner.update(data);
+                return inner.verify_slice(signature).is_ok();
             }
         }
     };

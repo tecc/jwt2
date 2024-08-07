@@ -6,7 +6,7 @@
 //! the dependency tree into smithereens, so for now you'll have to live without.
 
 use base64ct::LineEnding;
-use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
+use crate::{Algorithm, Header, JwsSigner, JwsVerifier, RecommendHeaderParams, SigningAlgorithm, ValidateHeaderParams};
 use ecdsa::elliptic_curve::pkcs8::{
     DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey,
 };
@@ -79,25 +79,36 @@ macro_rules! impl_es {
             }
         }
 
+        impl RecommendHeaderParams for $main_ident {
+            fn alg(&self) -> Option<Algorithm> {
+                Some(Algorithm::Signing(SigningAlgorithm::$main_ident))
+            }
+        }
         impl JwsSigner for $main_ident {
             fn sign(&self, data: &[u8]) -> Vec<u8> {
                 let signature: Signature<$curve_ty> = Signer::sign(&self.key, data);
                 signature.to_vec()
             }
         }
-        impl JwsVerifier for $main_ident {
-            fn check_header(&self, header: &Header) -> bool {
+
+        impl ValidateHeaderParams for $main_ident {
+            fn validate_header(&self, header: &Header) -> bool {
                 header.algorithm == SigningAlgorithm::$main_ident
             }
+        }
+        impl JwsVerifier for $main_ident {
             fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
                 let Ok(signature) = Signature::<$curve_ty>::from_slice(signature) else { return false };
                 Verifier::verify(self.key.verifying_key(), data, &signature).is_ok()
             }
         }
-        impl JwsVerifier for $public_ident {
-            fn check_header(&self, header: &Header) -> bool {
+
+        impl ValidateHeaderParams for $public_ident {
+            fn validate_header(&self, header: &Header) -> bool {
                 header.algorithm == SigningAlgorithm::$main_ident
             }
+        }
+        impl JwsVerifier for $public_ident {
             fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
                 let Ok(signature) = Signature::<$curve_ty>::from_slice(signature) else { return false };
                 Verifier::verify(&self.key, data, &signature).is_ok()

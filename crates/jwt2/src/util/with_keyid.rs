@@ -1,4 +1,6 @@
-use crate::{Header, JwsSigner, JwsVerifier};
+use crate::{
+    Algorithm, Header, JwsSigner, JwsVerifier, RecommendHeaderParams, ValidateHeaderParams,
+};
 
 /// A utility for use with [`Header::key_id`].
 ///
@@ -30,24 +32,41 @@ impl<Inner> WithKeyId<Inner> {
     }
 }
 
-impl<Inner> JwsVerifier for WithKeyId<Inner>
+impl<Inner> ValidateHeaderParams for WithKeyId<Inner>
 where
-    Inner: JwsVerifier,
+    Inner: ValidateHeaderParams,
 {
-    fn check_header(&self, header: &Header) -> bool {
+    fn validate_header(&self, header: &Header) -> bool {
         let Some(ref header_key_id) = header.key_id else {
             return self.accept_missing_key_id;
         };
 
         if header_key_id.eq(&self.key_id) {
-            self.inner.check_header(header)
+            self.inner.validate_header(header)
         } else {
             false
         }
     }
+}
 
+impl<Inner> JwsVerifier for WithKeyId<Inner>
+where
+    Inner: JwsVerifier,
+{
     fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
         self.inner.verify_signature(data, signature)
+    }
+}
+
+impl<Inner> RecommendHeaderParams for WithKeyId<Inner>
+where
+    Inner: RecommendHeaderParams,
+{
+    fn alg(&self) -> Option<Algorithm> {
+        self.inner.alg()
+    }
+    fn kid(&self) -> Option<&str> {
+        Some(self.key_id.as_str())
     }
 }
 

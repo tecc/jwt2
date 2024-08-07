@@ -1,7 +1,10 @@
 //! # RSA-based algorithms using PKCS1-v1_5 ([`RS256`], [`RS384`], [`RS512`])
 
+use crate::{
+    Algorithm, Header, JwsSigner, JwsVerifier, RecommendHeaderParams, SigningAlgorithm,
+    ValidateHeaderParams,
+};
 use base64ct::LineEnding;
-use crate::{Header, JwsSigner, JwsVerifier, SigningAlgorithm};
 use rsa::pkcs1::{DecodeRsaPrivateKey, DecodeRsaPublicKey};
 use rsa::pkcs1v15::{Signature, SigningKey, VerifyingKey};
 use rsa::pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey};
@@ -130,28 +133,42 @@ trait Algo {
     const ALGORITHM: SigningAlgorithm;
 }
 
-impl<Key> JwsVerifier for GenericRsaImpl<Key>
+impl<Key> RecommendHeaderParams for GenericRsaImpl<Key>
 where
-    Key: signature::Verifier<Signature>,
     Self: Algo,
 {
-    fn check_header(&self, header: &Header) -> bool {
-        header.algorithm == Self::ALGORITHM
-    }
-
-    fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
-        let Ok(signature) = Signature::try_from(signature) else {
-            return false;
-        };
-        self.key.verify(data, &signature).is_ok()
+    fn alg(&self) -> Option<Algorithm> {
+        Some(Algorithm::Signing(Self::ALGORITHM))
     }
 }
 impl<Key> JwsSigner for GenericRsaImpl<Key>
 where
     Key: signature::Signer<Signature>,
+    Self: Algo,
 {
     fn sign(&self, data: &[u8]) -> Vec<u8> {
         self.key.sign(data).to_bytes().into_vec()
+    }
+}
+
+impl<Key> ValidateHeaderParams for GenericRsaImpl<Key>
+where
+    Self: Algo,
+{
+    fn validate_header(&self, header: &Header) -> bool {
+        header.algorithm == Self::ALGORITHM
+    }
+}
+impl<Key> JwsVerifier for GenericRsaImpl<Key>
+where
+    Key: signature::Verifier<Signature>,
+    Self: Algo,
+{
+    fn verify_signature(&self, data: &[u8], signature: &[u8]) -> bool {
+        let Ok(signature) = Signature::try_from(signature) else {
+            return false;
+        };
+        self.key.verify(data, &signature).is_ok()
     }
 }
 

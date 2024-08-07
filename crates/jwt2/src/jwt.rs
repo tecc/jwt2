@@ -67,8 +67,11 @@ impl<'a> RawJwt<'a> {
     ///
     /// This function also checks whether the header is supported by the verifier,
     /// although this may change in the future.
-    pub fn verify_signature(&self, verifier: &dyn JwsVerifier) -> bool {
-        if !verifier.check_header(&self.header) {
+    pub fn verify_signature<Verifier>(&self, verifier: &Verifier) -> bool
+    where
+        Verifier: ?Sized + JwsVerifier,
+    {
+        if !verifier.validate_header(&self.header) {
             return false;
         }
         if !verifier.verify_signature(self.header_and_payload.as_bytes(), &self.signature) {
@@ -77,13 +80,16 @@ impl<'a> RawJwt<'a> {
 
         true
     }
-    pub fn verify_signature_multi<'v>(
+    pub fn verify_signature_multi<'v, Verifier>(
         &self,
-        verifiers: impl Iterator<Item = &'v dyn JwsVerifier>,
-    ) -> bool {
+        verifiers: impl Iterator<Item = &'v Verifier>,
+    ) -> bool
+    where
+        Verifier: ?Sized + JwsVerifier + 'v,
+    {
         for verifier in verifiers {
             // This does duplicate the code of verify_signature and I intend to keep it that way.
-            if verifier.check_header(&self.header) {
+            if verifier.validate_header(&self.header) {
                 continue;
             }
             if verifier.verify_signature(self.header_and_payload.as_bytes(), &self.signature) {
