@@ -137,8 +137,8 @@ impl<Key> RecommendHeaderParams for GenericRsaImpl<Key>
 where
     Self: Algo,
 {
-    fn alg(&self) -> Option<Algorithm> {
-        Some(Algorithm::Signing(Self::ALGORITHM))
+    fn alg(&self) -> Algorithm {
+        Algorithm::Signing(Self::ALGORITHM)
     }
 }
 impl<Key> JwsSigner for GenericRsaImpl<Key>

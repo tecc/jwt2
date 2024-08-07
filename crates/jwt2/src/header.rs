@@ -46,6 +46,18 @@ impl Header {
         }
     }
 
+    pub fn recommended<R>(recommender: &R) -> Self
+    where
+        R: RecommendHeaderParams + ?Sized,
+    {
+        Self {
+            algorithm: recommender.alg(),
+            key_id: recommender.kid().map(str::to_string),
+            obj_type: None,
+            required_extensions: None,
+        }
+    }
+
     /// Checks if this library supports the required extensions.
     ///
     /// # Implementation details
@@ -97,24 +109,24 @@ impl core::fmt::Display for Algorithm {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             Self::None => f.write_str("<none>"),
-            Self::Signing(alg) => core::fmt::Display::fmt(alg, f)
+            Self::Signing(alg) => core::fmt::Display::fmt(alg, f),
         }
     }
 }
 
+/// Something that can recommend header parameters. Useful with [`sign::JwsSigner`].
+pub trait RecommendHeaderParams {
+    /// Recommends an algorithm.
+    fn alg(&self) -> Algorithm;
+    /// Recommends a key ID. See [`crate::util::WithKeyId`].
+    fn kid(&self) -> Option<&str> {
+        None
+    }
+}
 /// Indicates that something can validate header parameters. Useful with [`sign::JwsVerifier`].
 pub trait ValidateHeaderParams {
     /// Check that the header is supported by this verifier.
     fn validate_header(&self, header: &Header) -> bool;
-}
-/// Something that can recommend header parameters. Useful with [`sign::JwsSigner`].
-pub trait RecommendHeaderParams {
-    fn alg(&self) -> Option<Algorithm> {
-        None
-    }
-    fn kid(&self) -> Option<&str> {
-        None
-    }
 }
 
 #[cfg(test)]

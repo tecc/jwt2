@@ -87,8 +87,8 @@ macro_rules! impl_hs {
         }
 
         impl RecommendHeaderParams for $struct_ident {
-            fn alg(&self) -> Option<Algorithm> {
-                Some(Algorithm::Signing($algorithm))
+            fn alg(&self) -> Algorithm {
+                Algorithm::Signing($algorithm)
             }
         }
         impl JwsSigner for $struct_ident {

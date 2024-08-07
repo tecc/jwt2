@@ -1,4 +1,4 @@
-use crate::{repr, Header, JwsSigner, JwsVerifier};
+use crate::{repr, Header, JwsSigner, JwsVerifier, Algorithm};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -8,6 +8,13 @@ pub struct JwtData<Claims> {
 }
 
 impl<Claims> JwtData<Claims> {
+    pub fn new(algorithm: Algorithm, claims: Claims) -> Self {
+        Self {
+            header: Header::new(algorithm),
+            claims
+        }
+    }
+
     pub fn create_jws<Signer>(&self, signer: &Signer) -> Result<String, JwtCreateError>
     where
         Signer: JwsSigner,

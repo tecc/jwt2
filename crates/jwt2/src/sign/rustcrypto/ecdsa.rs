@@ -80,8 +80,8 @@ macro_rules! impl_es {
         }
 
         impl RecommendHeaderParams for $main_ident {
-            fn alg(&self) -> Option<Algorithm> {
-                Some(Algorithm::Signing(SigningAlgorithm::$main_ident))
+            fn alg(&self) -> Algorithm {
+                Algorithm::Signing(SigningAlgorithm::$main_ident)
             }
         }
         impl JwsSigner for $main_ident {
