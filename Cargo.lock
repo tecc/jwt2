@@ -210,7 +210,6 @@ dependencies = [
  "base64ct",
  "ecdsa",
  "hmac",
- "jwt2-macros",
  "p256",
  "p384",
  "rand_core",

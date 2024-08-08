@@ -10,11 +10,7 @@ repository.workspace = true
 edition.workspace = true
 
 [features]
-default = ["recommended"]
-# The `recommended` feature contains all algorithms that `jwt2` recommends consumers have.
-# This may or may not coincide with those RFC 7518 specified as `recommended`, but *will*
-# contain those specified as `required`.
-recommended = ["hmac-sha2"]
+default = []
 
 # NOTE: Maybe create features for each algorithm and group them with more features?
 #       It might be excessive.
@@ -25,7 +21,7 @@ rsa-pkcs1 = ["dep:rsa", "dep:signature", "dep:sha2"]
 ecdsa = ["dep:ecdsa", "dep:signature", "dep:p256", "p256/ecdsa", "dep:p384", "p384/ecdsa"] # "dep:p521"
 # cdsa = ["dep:ring"]
 
-macros = ["dep:jwt2-macros"]
+# macros = ["dep:jwt2-macros"]
 
 # Will allow for generation of keys.
 # This is mostly a utility.

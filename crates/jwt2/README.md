@@ -4,6 +4,19 @@
 
 It is intended as a replacement for the `jsonwebtoken` crate.
 
+> **WARNING!**
+> 
+> `jwt2` is currently unstable and prone to changes. 
+> Whilst I am mostly happy with the code thus far, 
+> major changes to the API may occur at any time.
+> 
+> The algorithms this crate provides are all tested to some extent so 
+> it is "safe" to use in actual code. If you want a tried-and-tested\* crate, 
+> try the aforementioned `jsonwebtoken` crate.
+> 
+> <sup>\*May not be actually tried-and-tested. 
+> It's got over 24 million all-time downloads though, so there's that.</sup>
+
 ## Goals and non-goals
 
 `jwt2` is (supposed to be):
@@ -22,9 +35,14 @@ at some point I hope it will.
 
 ## Feature gates
 
-- `hmac-sha2` (recommended): Defines the `HS256`, `HS384`, and `HS512` algorithms.
-- `rsa-pkcs1` (recommended): Defines the `RS256`, `RS384`, and `RS512` algorithms.
+All algorithms implemented by `jwt2` are gated behind the following features.
+None of these are enabled by default.
+
+- `hmac-sha2`: Defines the `HS256`, `HS384`, and `HS512` algorithms.
+- `rsa-pkcs1`: Defines the `RS256`, `RS384`, and `RS512` algorithms.
+- `ecdsa`: Defines the `ES256` and `ES384` algorithms.
 - `rand`: Provides utility functions to generate keys.
+  > This feature is still not complete, nor is it properly tested.
 
 ## Libraries used
 
@@ -34,8 +52,13 @@ the backing implementations of all the algorithms thus far.
   [`hmac`](https://github.com/RustCrypto/MACs/tree/master/hmac) and 
   [`sha2`](https://github.com/RustCrypto/hashes/tree/master/sha2) crates.
 - `RS256`, `RS384`, and `RS512` use the 
-  [`rsa`](https://github.com/RustCrypto/RSA)
+  [`rsa`](https://github.com/RustCrypto/RSA) and
   [`sha2`](https://github.com/RustCrypto/hashes/tree/master/sha2) crates.
+- `ES256` and `ES384` use the 
+  [`p256`](https://github.com/RustCrypto/elliptic-curves/tree/master/p256) and 
+  [`p384`](https://github.com/RustCrypto/elliptic-curves/tree/master/p384) crates.
+  > `p256` and `p384` warn that the EC algorithm they contain have never been independently audited.
+  > For those that consider this a dealbreaker, don't use the `ES256` or `ES384` algorithms. 
 - Base64 encoding and decoding is done using the 
   [`base64ct`](https://github.com/RustCrypto/formats/tree/master/base64ct) crate.
 
