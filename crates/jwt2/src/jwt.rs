@@ -1,4 +1,4 @@
-use crate::{repr, Header, JwsSigner, JwsVerifier, Algorithm};
+use crate::{repr, Algorithm, Header, JwsSigner, JwsVerifier};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -11,20 +11,28 @@ impl<Claims> JwtData<Claims> {
     pub fn new(algorithm: Algorithm, claims: Claims) -> Self {
         Self {
             header: Header::new(algorithm),
-            claims
+            claims,
         }
     }
 
-    pub fn create_jws<Signer>(&self, signer: &Signer) -> Result<String, JwtCreateError>
+    /// Gets the JWS signing input (i.e. `<base64url(header)>.<base64url(payload)>`.
+    pub fn to_signing_input(&self) -> Result<String, serde_json::Error>
     where
-        Signer: JwsSigner,
         Claims: Serialize,
     {
         // NOTE(tecc): This code so fundamentally bothers my allocation-hating mind,
         //             but I'll leave it like this since It Can Be Improved Later.
         let header = repr::encode_value_as_base64url(&self.header)?;
         let payload = repr::encode_value_as_base64url(&self.claims)?;
-        let header_and_payload = format!("{}.{}", header, payload);
+        Ok(format!("{}.{}", header, payload))
+    }
+
+    pub fn sign_with<Signer>(&self, signer: &Signer) -> Result<String, JwtCreateError>
+    where
+        Signer: JwsSigner,
+        Claims: Serialize,
+    {
+        let header_and_payload = self.to_signing_input()?;
 
         let signature = signer.sign(header_and_payload.as_bytes());
         let signature = repr::encode_bytes_as_base64url(&signature);

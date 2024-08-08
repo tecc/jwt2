@@ -44,10 +44,10 @@ optional = true
 version = "0.12.1"
 optional = true
 
-[dependencies.jwt2-macros]
-version = "0.1.0"
-path = "../jwt2-macros"
-optional = true
+# [dependencies.jwt2-macros]
+# version = "0.1.0"
+# path = "../jwt2-macros"
+# optional = true
 
 [dependencies.p256]
 version = "0.13.2"
