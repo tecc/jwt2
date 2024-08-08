@@ -5,6 +5,8 @@ JSON Web Tokens done right... hopefully.
 """
 version = "0.1.0-alpha.0"
 authors = ["tecc <tecc@tecc.me>"]
+categories = ["authentication"]
+keywords = ["jwt", "jws", "jwa"]
 license.workspace = true
 repository.workspace = true
 edition.workspace = true
