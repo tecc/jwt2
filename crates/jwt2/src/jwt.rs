@@ -77,6 +77,13 @@ impl<'a> RawJwt<'a> {
             claims,
         })
     }
+    pub fn parse_owned<Claims>(self) -> Result<JwtData<Claims>, JwtDecodeError> {
+        let claims: Claims = repr::decode_value_from_base64url(self.payload)?;
+        Ok(JwtData {
+            header: self.header,
+            claims
+        })
+    }
 
     /// Checks if [`Self::signature`] is correct using `verifier`.
     ///
