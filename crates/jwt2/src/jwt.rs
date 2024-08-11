@@ -77,7 +77,10 @@ impl<'a> RawJwt<'a> {
             claims,
         })
     }
-    pub fn parse_owned<Claims>(self) -> Result<JwtData<Claims>, JwtDecodeError> {
+    pub fn parse_owned<Claims>(self) -> Result<JwtData<Claims>, JwtDecodeError>
+    where
+        Claims: DeserializeOwned
+    {
         let claims: Claims = repr::decode_value_from_base64url(self.payload)?;
         Ok(JwtData {
             header: self.header,
