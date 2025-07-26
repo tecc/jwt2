@@ -13,14 +13,14 @@ pub struct Header {
     /// Corresponds to the `kid` header parameter.
     ///
     /// See [section 4.1.4 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.4).
-    #[serde(rename = "kid")]
+    #[serde(rename = "kid", skip_serializing_if = "Option::is_none")]
     pub key_id: Option<String>,
 
     /// The type of the object that is encoded with this header.
     /// Corresponds to the `typ` header parameter.
     ///
     /// See [section 4.1.9 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.9).
-    #[serde(rename = "typ")]
+    #[serde(rename = "typ", skip_serializing_if = "Option::is_none")]
     pub obj_type: Option<String>,
 
     /// A list of parameters, i.e. field names, that the JWS implementation (i.e. `jwt2`) is
@@ -33,7 +33,7 @@ pub struct Header {
     /// To validate this, use the [`Header::required_extensions`] function.
     ///
     /// See [section 4.1.11 of RFC 7515](https://www.rfc-editor.org/rfc/rfc7515.html#section-4.1.11).
-    #[serde(rename = "crit")]
+    #[serde(rename = "crit", skip_serializing_if = "Option::is_none")]
     pub required_extensions: Option<Vec<String>>,
 }
 impl Header {
